@@ -4,27 +4,56 @@
 [![Docker](https://github.com/openlab-apps/vahadane_norm_and_tile/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/openlab-apps/vahadane_norm_and_tile/actions/workflows/docker-publish.yml)
 
 ---
+## Visual Abstract
+
+![[Screen Shot 2022-12-05 at 3.42.22 PM.png]]
+
 ## Introduction
+
+Pathology slides have a significant amount of variation between them. This may arise from different staining protocols, imaging or scanning techniques. This protocol will normalize images to make them easier to read by pathologists, and more importantly, software, while still maintaining the structure of the image. 
+
 Vahadane Stain Normalization is one of the most popular preprocessing methods in digital pathology. As stated in the paper, **"this normalizer is a solution for stain separation and color normaization, which preserves biological structure information by modelling stain density maps"**
 
-## What does this container do?
+The image is first decompsed to create stain density maps. Then, the maps are combined with a basis of a pathologist-preferred target image thus creating the final outputted image. This method will only alter the image's color while still preserving the structure.
 
-This container will expose a port on your machine/cloud instance which will accept images via an API, and return a .zip file containing the normalized and split images. 
+## Process
+```mermaid
+graph TD;
 
-### Input
+A[images] 
+B[Vahadane Stain Normalizer]
+C[NormalizedAndSplitImages.zip]
+
+A --> B 
+B --> C
+
+
+class A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z internal-link;
+```
+
+## Input
 
 Pathology images will be passed into the API, then will be split into 8 tiles (feature added soon to dynamically change this). Each image will then be passed in to the Vahadane Stain Normalization algorithm (learn more [here](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7460968)) (feature added soon to dynamically change the stain algorithm used). 
 
-### Output
+## Important Parameters
+
+(Currently in the process of integrating) 
+
+We will be adding the parameter of changing the number of slices of the output image. Currently, we have 8 vertical slices by default, but will make this customizable to change the number and orientation of the slices.
+
+## Output
 After being processed through the Vahadane Stain Normalization Algorithm, the images will then be zipped and sent in a file titled ```normalizedAndSplitPictures.zip```. Check out [```main.py```](https://github.com/openlab-apps/vahadane_norm_and_tile/blob/main/main.py) for more details
 
 We have 3 images in the ```images/``` directory where you can test out the container. We also have the files on Bacalhau, which you can learn more about [here](#Processing-data-with-bacalhau). 
 
+## Access
 
-## Running this app locally
+There are multiple ways to use this application. To do any of this you must first clone the repository by running ``git clone https://github.com/labdao-apps/vahadane-norm.git`` in your terminal.
+
+### Running this app locally
 Run the app locally with: `uvicorn main:app --reload --host "0.0.0.0"`
 
-## Building the container image
+### Building the container image
 
 1. Clone this repository
 2. Inside the directory for this repository, run:
@@ -33,29 +62,14 @@ Run the app locally with: `uvicorn main:app --reload --host "0.0.0.0"`
     docker build -t vahadane_norm_and_tile .
     ```
 
-## Running the container
+### Running the container
 Run the app in Docker via:
 
     docker run -d -p 8000:8000 vahadane_norm_and_tile:latest
 
 and it should be running at http://localhost:8000 (or replace `localhost` with the IP/DNS name of whichever computer is running the container)
 
-## Processing data with Postman
-
-1. In Postman, craft a request with the following properties:
-
-    | Postman parameter | Value |
-    | --- | --- |
-    | Request Type | `POST` |
-    | Body Type | `form-data` |
-    | key type (dropdown) | File |
-    | key name (textbox) | `files` |
-    | key value | (select an image) |
-  
-1. Press the "Send" button
-1. The result should be a .zip file, so when the result is ready (it will look like random letters and numbers in the bottom half of the screen), press "Save Response" on the right side of the screen. Save the zip file.
-
-## Processing data with bacalhau 
+### Processing data with bacalhau 
 You can learn more about [[bacalhau]] in the [docs](https://docs.bacalhau.org/getting-started/installation).
 
 the examples images have been pinned to IPFS using Pinata:
@@ -78,6 +92,10 @@ bacalhau docker run \
 ```
 
 You can download the results by calling ``` bacalhau get ``` on the job id you have received.
+
+## Benchmark
+
+coming soon
 
 ## Citation
 ```
